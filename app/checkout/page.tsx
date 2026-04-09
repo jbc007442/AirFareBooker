@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
@@ -21,29 +21,29 @@ const CARD_ELEMENT_OPTIONS = {
 };
 
 const CheckoutPage = () => {
-  const params = useSearchParams();
   const router = useRouter();
   const [checking, setChecking] = useState(true);
   const [data, setData] = useState({ name: '', phone: '', amount: '' });
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
+
     if (!isLoggedIn) {
       router.replace('/login');
-    } else {
-      setChecking(false);
+      return;
     }
-  }, [router]);
 
-  useEffect(() => {
-    if (!checking) {
-      setData({
-        name: params.get('name') || 'Guest Passenger',
-        phone: params.get('phone') || '',
-        amount: params.get('amount') || '0',
-      });
-    }
-  }, [checking, params]);
+    // ✅ Safe query param handling (client only)
+    const params = new URLSearchParams(window.location.search);
+
+    setData({
+      name: params.get('name') || 'Guest Passenger',
+      phone: params.get('phone') || '',
+      amount: params.get('amount') || '0',
+    });
+
+    setChecking(false);
+  }, [router]);
 
   if (checking) return null;
 
@@ -141,6 +141,7 @@ const CheckoutUI = ({ data }: any) => {
     }
   };
   return (
+    
     <div className="flex flex-col md:flex-row min-h-screen">
       {/* LEFT SIDE: AirfareBooker Itinerary Summary */}
       <div className="w-full md:w-[45%] bg-[#0F172A] p-8 md:p-16 flex flex-col justify-between text-white">
