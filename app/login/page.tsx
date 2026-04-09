@@ -23,7 +23,7 @@ const LoginPage = () => {
         localStorage.setItem('isLoggedIn', 'true');
         setStatus({ type: 'success', message: 'Credentials verified. Preparing your terminal...' });
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push('/link');
         }, 1000);
       } else {
         setStatus({ type: 'error', message: 'Invalid credentials. Please check your details.' });
